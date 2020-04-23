@@ -18,6 +18,18 @@ exports.CreateUser = functions.https.onRequest((request, response) =>{
     return admin.database().ref(userInfo.id).set(userInfo);
 });
 
+// Deleting a User
+
 exports.DeleteUser = functions.auth.user().onDelete(user =>{
     return admin.database().ref(user.uid).remove();
+})
+
+// get The Favourites List
+
+exports.getFavourites = functions.https.onRequest((request,response) =>{
+    id = request.body.uid;
+    admin.database().ref(id).on("value", snap =>{
+        const data = snap.val();
+        return data.favourites
+    })
 })
