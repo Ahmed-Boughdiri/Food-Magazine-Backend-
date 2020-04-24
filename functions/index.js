@@ -28,8 +28,39 @@ exports.DeleteUser = functions.auth.user().onDelete(user =>{
 
 exports.getFavourites = functions.https.onRequest((request,response) =>{
     id = request.body.uid;
-    admin.database().ref(id).on("value", snap =>{
+    return admin.database().ref(id).on("value", snap =>{
         const data = snap.val();
-        return data.favourites
+        response.send(data.favourites)
+    });
+})
+
+// Put in The Favourites List
+
+exports.PutInFavourites = functions.https.onRequest((request,response) =>{
+    const recipe = request.body.recipe;
+    const id = request.body.uid;
+    return admin.database().ref(id).on("value", snap =>{
+        const data = snap.val();
+        const currentFavourites = data.favourites;
+        return admin.database().ref(id).update({
+            favourites: currentFavourites.concat(recipe)
+        })
+    });
+})
+
+// Remove From Favourites 
+
+exports.RemoveFromFavourites = functions.https.onRequest((request,response) =>{
+    const id = request.body.uid;
+    const favouritesList = request.body.favourites;
+    const foodName = request.body.foodName;
+    let favs = [];
+    favouritesList.map(fav =>{
+        if(fav.name !== foodName){
+            favs.push(fav)
+        }
+    })
+    return admin.database().ref(id).update({
+        favourites: favs
     })
 })
